@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Login | SkillBridge{% endblock %}
+{% block content %}
+
+<section class="auth-page">
+  <div class="auth-card reveal">
+    <div class="modal-icon">🔐</div>
+    <h2>Welcome Back</h2>
+    <p class="auth-sub">Login to your SkillBridge account</p>
+
+    <form method="post">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter your password" required>
+
+      <button type="submit" class="btn btn-primary submit-btn">Login</button>
+    </form>
+
+    <p class="switch-text">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Create Profile | SkillBridge{% endblock %}
+{% block content %}
+
+<section class="auth-page">
+  <div class="auth-card auth-card-wide reveal">
+    <div class="modal-icon">✨</div>
+    <h2>Create Your Profile</h2>
+    <p class="auth-sub">Join the SkillBridge community</p>
+
+    <form method="post" enctype="multipart/form-data">
+      <label>Full Name</label>
+      <input type="text" name="name" placeholder="Your name" value="{{ form.get('name','') }}" required>
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" value="{{ form.get('email','') }}" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Create a password" minlength="6" required>
+
+      <div class="form-row">
+        <div>
+          <label>Skill You Can Teach</label>
+          <input type="text" name="teach_skill" placeholder="e.g. Web Design" value="{{ form.get('teach_skill','') }}" required>
+        </div>
+        <div>
+          <label>Skill You Want To Learn</label>
+          <input type="text" name="learn_skill" placeholder="e.g. Python" value="{{ form.get('learn_skill','') }}" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div><label>Experience</label><select name="experience"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select></div>
+        <div><label>Availability</label><select name="availability"><option selected>Available</option><option>Weekdays</option><option>Weekends</option></select></div>
+      </div>
+      <label>Location <span class="optional">(optional)</span></label>
+      <input type="text" name="location" placeholder="City, Country" value="{{ form.get('location','') }}">
+
+      <label>About You <span class="optional">(optional)</span></label>
+      <textarea name="bio" rows="3" placeholder="Tell people a little about yourself...">{{ form.get('bio','') }}</textarea>
+
+      <label>Profile Picture <span class="optional">(optional)</span></label>
+      <input type="file" name="image" accept="image/*" id="imageInput">
+      <div id="imagePreview" class="image-preview"></div>
+
+      <button type="submit" class="btn btn-primary submit-btn">Create Profile</button>
+    </form>
+
+    <p class="switch-text">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+</section>
+
+{% endblock %}

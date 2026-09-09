@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Chat | SkillBridge{% endblock %}
+{% block content %}<section class="chat-shell">
+<aside class="chat-sidebar"><div class="chat-side-head"><h2>Messages</h2></div>{% for p in peers %}<a class="chat-peer {% if selected and selected.id==p.id %}active{% endif %}" href="{{ url_for('chat', user_id=p.id) }}"><span class="mini-avatar">{{ p.name[0]|upper }}</span><span><strong>{{ p.name }}</strong><small>{{ p.teach_skill }}</small></span></a>{% else %}<p class="empty-copy">Connect with someone to start chatting.</p>{% endfor %}</aside>
+<section class="chat-window">{% if selected %}<header class="chat-head"><div><h2>{{ selected.name }}</h2><small><span class="status-dot"></span><span id="onlineStatus">Checking status...</span></small></div><div><button class="btn btn-ghost call-btn" data-user-id="{{ selected.id }}">📹 Call</button><button class="btn btn-ghost schedule-btn" data-user-id="{{ selected.id }}" data-skill="{{ selected.teach_skill }}">🗓</button></div></header>
+<div id="chatMessages" class="chat-messages" data-peer="{{ selected.id }}"></div><div id="typingIndicator" class="typing-indicator"></div>
+<form id="chatForm" class="chat-compose"><input id="chatInput" maxlength="5000" autocomplete="off" placeholder="Type a message..."><button class="btn btn-primary">Send</button></form>
+{% else %}<div class="chat-empty"><div>💬</div><h2>Your conversations</h2><p>Select a connected person to start a real-time chat.</p></div>{% endif %}</section></section>{% endblock %}

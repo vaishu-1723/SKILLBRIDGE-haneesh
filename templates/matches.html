@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}AI Matches | SkillBridge{% endblock %}
+{% block content %}
+
+<section class="page-header reveal">
+  <p>✨ POWERED BY SKILLBRIDGE AI</p>
+  <h1>Your Best Skill Matches</h1>
+  <p class="ai-sub">
+    Ranked by how well each member's skills line up with yours —
+    you teach <strong>{{ viewer.teach_skill }}</strong> and want to learn
+    <strong>{{ viewer.learn_skill }}</strong>.
+  </p>
+</section>
+
+<section class="section">
+  {% if ranked %}
+  <div class="match-list">
+    {% for item in ranked %}
+    <div class="match-card reveal" style="--delay: {{ loop.index0 * 40 }}ms">
+      <div class="match-score-ring" style="--pct: {{ item.score }}">
+        <span>{{ item.score }}%</span>
+      </div>
+
+      <div class="match-body">
+        <div class="match-header">
+          {% if item.user.image %}
+            <img class="match-photo" src="{{ url_for('static', filename='uploads/' + item.user.image) }}" alt="{{ item.user.name }}">
+          {% else %}
+            <div class="match-photo profile-photo-fallback">{{ item.user.name[0]|upper }}</div>
+          {% endif %}
+          <div>
+            <h3>{{ item.user.name }}</h3>
+            {% if item.reciprocal %}<span class="reciprocal-badge">🔄 Two-way match</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="skill-tags">
+          <span class="tag tag-teach">🎓 {{ item.user.teach_skill }}</span>
+          <span class="tag tag-learn">📚 {{ item.user.learn_skill }}</span>
+        </div>
+
+        <ul class="match-reasons">
+          {% for reason in item.reasons %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('profile', user_id=item.user.id) }}" class="btn btn-outline">View Profile</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="no-profiles reveal">
+    <div class="empty-icon">🤖</div>
+    <h3>No matches yet</h3>
+    <p>As more members join SkillBridge, the AI will find your best skill-swap partners here.</p>
+    <a href="{{ url_for('explore') }}" class="btn btn-primary">Browse All Members</a>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

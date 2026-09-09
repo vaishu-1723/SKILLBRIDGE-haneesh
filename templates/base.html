@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}SkillBridge | Share Skills, Grow Together{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script>
+(function(){const t=localStorage.getItem('skillbridge-theme');const v=t||((matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');document.documentElement.dataset.theme=v;})();
+</script>
+</head>
+<body>
+<div id="appLoader" class="app-loader"><div class="loader-orb">🤝</div><div class="loader-bar"><span></span></div><p id="loaderMessage">Connecting learners with mentors...</p></div>
+<div class="bg-aurora" aria-hidden="true"><span class="blob blob-a"></span><span class="blob blob-b"></span><span class="blob blob-c"></span></div>
+
+<header class="navbar" id="navbar">
+  <a href="{{ url_for('index') }}" class="logo">
+    <svg class="logo-mark" viewBox="0 0 48 48" width="34" height="34"><defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c5cff"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs><path class="logo-path" fill="url(#logoGrad)" d="M24 2c8 0 10 6 10 10 0 5-4 7-4 11 0 4 4 6 4 11 0 4-2 10-10 10S14 38 14 34c0-5 4-7 4-11 0-4-4-6-4-11 0-4 2-10 10-10z"/></svg>
+    <span class="logo-text">Skill<span>Bridge</span></span>
+  </a>
+  <nav class="nav-links">
+    <a href="{{ url_for('index') }}">Home</a><a href="{{ url_for('explore') }}">Explore</a>
+    {% if current_user %}<a href="{{ url_for('matches') }}">✨ AI Matches</a><a href="{{ url_for('connections') }}">Connections</a><a href="{{ url_for('chat') }}">Chat</a><a href="{{ url_for('sessions') }}">Sessions</a>{% endif %}
+    <a href="{{ url_for('how_it_works') }}">How It Works</a><a href="{{ url_for('about') }}">About</a>
+  </nav>
+  <div class="nav-actions">
+    <button id="themeToggle" class="icon-btn" title="Toggle theme">☾</button>
+    {% if current_user %}
+      <a href="{{ url_for('notifications') }}" class="notification-btn">🔔{% if unread_notifications %}<b>{{ unread_notifications }}</b>{% endif %}</a>
+      <a href="{{ url_for('profile', user_id=current_user.id) }}" class="user-chip"><span class="user-avatar">{{ current_user.name[0]|upper }}</span>{{ current_user.name.split(' ')[0] }}</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-ghost">Logout</a>
+    {% else %}<a href="{{ url_for('login') }}" class="btn btn-ghost">Login</a><a href="{{ url_for('register') }}" class="btn btn-primary">Join Free</a>{% endif %}
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</header>
+<main id="mobileMenu" class="mobile-menu">
+  <a href="{{ url_for('index') }}">Home</a><a href="{{ url_for('explore') }}">Explore</a>
+  {% if current_user %}<a href="{{ url_for('matches') }}">✨ AI Matches</a><a href="{{ url_for('connections') }}">Connections</a><a href="{{ url_for('chat') }}">Chat</a><a href="{{ url_for('sessions') }}">Sessions</a><a href="{{ url_for('notifications') }}">Notifications{% if unread_notifications %} ({{ unread_notifications }}){% endif %}</a><a href="{{ url_for('profile', user_id=current_user.id) }}">My Profile</a><a href="{{ url_for('logout') }}">Logout</a>{% endif %}
+  <a href="{{ url_for('how_it_works') }}">How It Works</a><a href="{{ url_for('about') }}">About</a>
+</main>
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-stack">{% for category,message in messages %}<div class="flash flash-{{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+{% block content %}{% endblock %}
+{% if current_user %}
+<button id="aiFab" class="ai-fab" aria-label="Open SkillBridge AI">✨</button>
+<section id="aiPanel" class="ai-panel" aria-hidden="true">
+  <div class="ai-head"><div><strong>SkillBridge AI</strong><small>Can search, connect, message & schedule</small></div><button id="aiClose" class="icon-btn">×</button></div>
+  <div id="aiMessages" class="ai-messages"><div class="ai-bubble assistant">Hi {{ current_user.name.split(' ')[0] }}! Ask me to find someone, explain a learning path, or take an action in SkillBridge.</div></div>
+  <form id="aiForm" class="ai-form"><input id="aiInput" autocomplete="off" placeholder="e.g. Who can teach me Python?"><button class="btn btn-primary">Send</button></form>
+</section>
+{% endif %}
+<footer class="footer"><div class="footer-inner"><div class="footer-brand"><span class="logo-text">Skill<span>Bridge</span></span><p>Share skills, grow together.</p></div><div class="footer-links"><a href="{{ url_for('explore') }}">Explore</a><a href="{{ url_for('how_it_works') }}">How It Works</a><a href="{{ url_for('about') }}">About</a></div></div><p class="footer-note">&copy; 2026 SkillBridge. Built for learning, not for profit.</p></footer>
+<script>window.SKILLBRIDGE_ME={{ current_user.id if current_user else "null" }};window.SKILLBRIDGE_NAME={{ (current_user.name if current_user else "")|tojson }};</script><script src="{{ url_for('static', filename='js/main.js') }}"></script>{% block scripts %}{% endblock %}
+</body></html>

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section id="home" class="hero">
+  <div class="hero-content reveal">
+    <p class="tagline">SHARE WHAT YOU KNOW · LEARN WHAT YOU LOVE</p>
+    <h1>Swap Skills.<br><span class="gradient-text">Grow Together.</span></h1>
+    <p class="hero-description">
+      Connect with real people who can teach what you want to learn —
+      while sharing the skills you already know. {{ user_count }} members and counting.
+    </p>
+
+    <form class="search-box" action="{{ url_for('explore') }}" method="get" autocomplete="off">
+      <input type="text" name="q" id="skillSearch" placeholder="Search for a skill, like Python or Photography...">
+      <button type="submit" class="btn btn-primary">Find Skills 🔎</button>
+    </form>
+    <div id="liveResults" class="live-results"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-title reveal">
+    <p>DISCOVER PEOPLE</p>
+    <h2>Real Skill Profiles</h2>
+    <span>Profiles shown here are created by real registered members.</span>
+  </div>
+
+  {% if featured %}
+  <div class="profile-grid">
+    {% for u in featured %}
+    <div class="profile-card reveal" style="--delay: {{ loop.index0 * 60 }}ms">
+      {% if u.image %}
+        <img class="profile-photo" src="{{ url_for('static', filename='uploads/' + u.image) }}" alt="{{ u.name }}">
+      {% else %}
+        <div class="profile-photo profile-photo-fallback">{{ u.name[0]|upper }}</div>
+      {% endif %}
+      <h3>{{ u.name }}</h3>
+      <div class="skill-tags">
+        <span class="tag tag-teach">🎓 {{ u.teach_skill }}</span>
+        <span class="tag tag-learn">📚 {{ u.learn_skill }}</span>
+      </div>
+      <a class="btn btn-outline" href="{{ url_for('profile', user_id=u.id) }}">View Profile</a>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="center-cta reveal">
+    <a href="{{ url_for('explore') }}" class="btn btn-ghost">See All Members →</a>
+  </div>
+  {% else %}
+  <div class="no-profiles reveal">
+    <div class="empty-icon">👤</div>
+    <h3>No profiles yet</h3>
+    <p>Be the first person to create a SkillBridge profile.</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary">Create Your Profile</a>
+  </div>
+  {% endif %}
+</section>
+
+<section class="info-section">
+  <div class="reveal">
+    <p class="small-heading">SMART MATCHING</p>
+    <h2>Find people who have <span class="gradient-text">what you want to learn.</span></h2>
+    <p>Search for a skill and SkillBridge shows you real registered members who can teach it — no algorithms, no gatekeeping.</p>
+    <a href="{{ url_for('explore') }}" class="btn btn-primary">Start Exploring</a>
+  </div>
+  <div class="info-visual reveal" aria-hidden="true">
+    <div class="orbit">
+      <div class="orbit-core">🤝</div>
+      <div class="orbit-node n1">🎨</div>
+      <div class="orbit-node n2">💻</div>
+      <div class="orbit-node n3">🎸</div>
+      <div class="orbit-node n4">🗣️</div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

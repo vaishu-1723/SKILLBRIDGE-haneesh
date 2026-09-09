@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}About | SkillBridge{% endblock %}
+{% block content %}
+
+<section class="page-header reveal">
+  <p>OUR MISSION</p>
+  <h1>About SkillBridge</h1>
+</section>
+
+<section class="about-section">
+  <div class="about-prose reveal">
+    <p>SkillBridge is a skill-sharing platform designed to connect people who want to
+      <strong>learn new skills and share the skills they already know</strong>. It creates a simple
+      environment where members can discover others with similar learning interests.</p>
+
+    <p>In today's world, many people have valuable skills but may not have the opportunity to
+      teach them to others. At the same time, many learners want practical knowledge without
+      spending a lot of money. SkillBridge helps bring these two groups together.</p>
+
+    <p>The idea behind SkillBridge is simple:
+      <strong>&ldquo;Share Skills, Grow Together.&rdquo;</strong>
+      Instead of learning only through traditional methods, members learn directly from people
+      with real experience.</p>
+
+    <p>Members create profiles with their name, a skill they can teach, a skill they want to
+      learn, a short bio, and an optional photo — helping others understand their interests at a glance.</p>
+
+    <p>Searching is simple: someone who wants to learn <strong>Python</strong> can search for people
+      who know Python, while someone who knows <strong>Web Design</strong> can offer that skill to others.</p>
+
+    <p>Under the hood, SkillBridge runs on a <strong>Flask</strong> backend with a real SQL database:
+      passwords are hashed (never stored in plain text), and every profile lives securely on the server.</p>
+
+    <div class="about-tagline reveal">
+      <strong>SkillBridge — Share Skills, Grow Together.</strong>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

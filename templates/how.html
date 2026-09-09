@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}How It Works | SkillBridge{% endblock %}
+{% block content %}
+
+<section class="page-header reveal">
+  <p>HOW IT WORKS</p>
+  <h1>Three Simple Steps</h1>
+</section>
+
+<section class="section">
+  <div class="steps">
+    <div class="step reveal" style="--delay:0ms">
+      <div class="step-number">01</div>
+      <h3>Create Profile</h3>
+      <p>Register and tell the community what you can teach and what you want to learn.</p>
+    </div>
+    <div class="step reveal" style="--delay:100ms">
+      <div class="step-number">02</div>
+      <h3>Find People</h3>
+      <p>Search through real profiles based on skills, and see who's a match.</p>
+    </div>
+    <div class="step reveal" style="--delay:200ms">
+      <div class="step-number">03</div>
+      <h3>Connect &amp; Learn</h3>
+      <p>Find a suitable skill partner and start learning from each other.</p>
+    </div>
+  </div>
+
+  <div class="center-cta reveal">
+    <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+  </div>
+</section>
+
+{% endblock %}

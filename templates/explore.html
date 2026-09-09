@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Explore | SkillBridge{% endblock %}
+{% block content %}
+<section class="page-header reveal"><p>DISCOVER PEOPLE</p><h1>Find your next skill partner</h1>
+<form class="search-box search-box-inline" method="get" autocomplete="off">
+<input type="text" name="q" id="exploreSearch" value="{{ query }}" placeholder="Python, React, AWS, UI/UX..."><button class="btn btn-primary">Search 🔎</button>
+</form>
+<div id="searchSuggestions" class="live-results"></div>
+<div class="filter-row">
+<select name="experience" form="none" id="experienceFilter"><option value="">Any experience</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+<select id="availabilityFilter"><option value="">Any availability</option><option>Available</option><option>Weekdays</option><option>Weekends</option></select>
+<select id="modeFilter"><option value="">Teach or learn</option><option value="teaching">Can teach</option><option value="learning">Wants to learn</option></select>
+<select id="sortFilter"><option value="relevance">Most relevant</option><option value="name">Name</option><option value="recent">Newest</option></select>
+</div>
+{% if query %}<p class="search-meta"><strong>{{ users|length }}</strong> people found for “{{ query }}”. Related skills are included when relevant.</p>{% endif %}
+</section>
+<section class="section">
+{% if users %}
+<div class="profile-grid">
+{% for u in users %}
+<div class="profile-card reveal">
+{% if u.image %}<img class="profile-photo" src="{{ url_for('static', filename='uploads/' + u.image) }}" alt="{{ u.name }}">{% else %}<div class="profile-photo profile-photo-fallback">{{ u.name[0]|upper }}</div>{% endif %}
+<h3>{{ u.name }}</h3><p class="card-bio">{{ u.bio or "SkillBridge member" }}</p>
+<div class="skill-tags"><span class="tag tag-teach">🎓 {{ u.teach_skill }}</span><span class="tag tag-learn">📚 {{ u.learn_skill }}</span></div>
+<div class="meta-line">{{ u.experience or 'Intermediate' }} · {{ u.availability or 'Available' }}{% if u.location %} · {{ u.location }}{% endif %}</div>
+{% if u.match_reasons %}<div class="match-hints">{% for r in u.match_reasons %}<span>{{ r }}</span>{% endfor %}</div>{% endif %}
+<div class="card-actions"><a class="btn btn-outline" href="{{ url_for('profile', user_id=u.id) }}">View Profile</a>{% if current_user and current_user.id != u.id %}<button class="btn btn-primary connect-btn" data-user-id="{{ u.id }}">Connect</button>{% endif %}</div>
+</div>
+{% endfor %}</div>
+{% else %}
+<div class="no-profiles reveal"><div class="empty-icon">🔍</div><h3>No matching people</h3><p>Try a broader skill, another spelling, or remove a filter. We don't show fake results.</p><a href="{{ url_for('explore') }}" class="btn btn-primary">Clear Search</a></div>
+{% endif %}
+</section>
+{% endblock %}

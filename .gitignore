@@ -6,6 +6,10 @@ venv/
 firebase-service-account.json
 static/uploads/*
 !static/uploads/.gitkeep
+skillbridge.db
 
 # Local Excel account database (contains password hashes/profile data)
 users.xlsx
+
+serviceAccountKey.json
+*.db

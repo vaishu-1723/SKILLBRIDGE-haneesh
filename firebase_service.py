@@ -1,116 +1,76 @@
-"""Firebase Cloud Firestore integration for SkillBridge.
-
-The Flask app keeps SQLite as its local application database and mirrors
-application data (excluding password hashes) to Firestore when Firebase is
-configured. This makes the existing app easy to run locally while giving it a
-cloud copy of profiles, connections, messages, sessions, notifications and
-call state.
-"""
-
-import json
 import os
-from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-try:
-    import firebase_admin
-    from firebase_admin import credentials, firestore
-except ImportError:  # Firebase is optional until configured.
-    firebase_admin = None
-    credentials = None
-    firestore = None
-
-
-FIREBASE_COLLECTIONS = {
-    "users": "users",
-    "connections": "connections",
-    "messages": "messages",
-    "sessions": "sessions",
-    "notifications": "notifications",
-    "calls": "calls",
-}
-
-
-def _credential_from_environment():
-    """Load Firebase credentials from a JSON file or JSON environment value."""
-    if not credentials:
-        return None
-
-    raw_json = os.environ.get("FIREBASE_CREDENTIALS_JSON", "").strip()
-    if raw_json:
-        return credentials.Certificate(json.loads(raw_json))
-
-    path = os.environ.get("FIREBASE_CREDENTIALS", "").strip()
-    if path:
-        if not os.path.isabs(path):
-            path = os.path.join(os.path.dirname(__file__), path)
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Firebase credentials file not found: {path}")
-        return credentials.Certificate(path)
-
-    return None
-
+_firestore_client = None
+_initialized = False
 
 def init_firebase():
-    """Initialize Firebase once. Returns a Firestore client or None."""
-    if firebase_admin is None:
+    """Initializes Firebase Admin SDK using serviceAccountKey.json."""
+    global _firestore_client, _initialized
+    if _initialized and _firestore_client:
+        return _firestore_client
+
+    key_path = os.path.join(os.path.dirname(__file__), "serviceAccountKey.json")
+    if not os.path.exists(key_path):
+        print(f"[Firebase] Warning: serviceAccountKey.json not found at {key_path}")
         return None
-    if firebase_admin._apps:
-        return firestore.client()
 
-    cred = _credential_from_environment()
-    if cred is None:
+    try:
+        cred = credentials.Certificate(key_path)
+        firebase_admin.initialize_app(cred)
+        _firestore_client = firestore.client()
+        _initialized = True
+        print("[Firebase] Connected successfully to Cloud Firestore!")
+        return _firestore_client
+    except Exception as e:
+        print(f"[Firebase] Error during initialization: {e}")
         return None
 
-    options = {}
-    bucket = os.environ.get("FIREBASE_STORAGE_BUCKET", "").strip()
-    if bucket:
-        options["storageBucket"] = bucket
 
-    firebase_admin.initialize_app(cred, options)
-    return firestore.client()
+def get_firestore_db():
+    global _firestore_client
+    if not _firestore_client:
+        return init_firebase()
+    return _firestore_client
 
 
 def firebase_status():
-    """Return a safe, user-facing Firebase configuration status."""
-    if firebase_admin is None:
-        return {"configured": False, "reason": "firebase-admin is not installed"}
+    db = get_firestore_db()
+    return {
+        "configured": db is not None,
+        "database": "Cloud Firestore" if db else "None"
+    }
+
+
+def sync_sqlite_to_firestore(sqlite_db):
+    """Syncs SQLite users, sessions, and messages directly to Firestore."""
+    fdb = get_firestore_db()
+    if not fdb:
+        return {"configured": False, "message": "Firebase not connected"}
+
     try:
-        client = init_firebase()
-        if client is None:
-            return {"configured": False, "reason": "Firebase credentials are not configured"}
-        return {"configured": True, "project_id": os.environ.get("FIREBASE_PROJECT_ID", "configured")}
-    except Exception as exc:
-        return {"configured": False, "reason": str(exc)}
+        # Sync Users
+        users = sqlite_db.execute("SELECT * FROM users").fetchall()
+        for u in users:
+            u_dict = dict(u)
+            email = u_dict.get("email")
+            if email:
+                fdb.collection("users").document(email).set(u_dict, merge=True)
 
+        # Sync Sessions
+        sessions = sqlite_db.execute("SELECT * FROM sessions").fetchall()
+        for s in sessions:
+            s_dict = dict(s)
+            fdb.collection("sessions").document(str(s_dict["id"])).set(s_dict, merge=True)
 
-def _clean_value(value):
-    """Make SQLite values Firestore-friendly."""
-    if isinstance(value, datetime):
-        return value.isoformat()
-    return value
+        # Sync Messages
+        messages = sqlite_db.execute("SELECT * FROM messages").fetchall()
+        for m in messages:
+            m_dict = dict(m)
+            fdb.collection("messages").document(str(m_dict["id"])).set(m_dict, merge=True)
 
-
-def sync_sqlite_to_firestore(db):
-    """Mirror the current SQLite state to Firestore.
-
-    Password hashes are deliberately never uploaded. IDs remain stable by
-    using the SQLite primary key as the Firestore document ID.
-    """
-    client = init_firebase()
-    if client is None:
-        return {"configured": False, "synced": False}
-
-    counts = {}
-    for table, collection in FIREBASE_COLLECTIONS.items():
-        rows = db.execute(f"SELECT * FROM {table}").fetchall()
-        count = 0
-        for row in rows:
-            data = dict(row)
-            data.pop("password_hash", None)
-            data = {k: _clean_value(v) for k, v in data.items()}
-            doc_id = str(data.pop("id"))
-            client.collection(collection).document(doc_id).set(data, merge=True)
-            count += 1
-        counts[collection] = count
-
-    return {"configured": True, "synced": True, "counts": counts}
+        return {"configured": True, "synced_users": len(users), "status": "success"}
+    except Exception as e:
+        print(f"[Firebase Sync Error] {e}")
+        return {"configured": True, "error": str(e)}
